@@ -1,11 +1,10 @@
-import { Repository, EntityRepository } from "typeorm";
+import { Repository, EntityRepository, MongoRepository } from "typeorm";
 import { InternalServerErrorException, Logger } from "@nestjs/common";
 import { Producto } from "./producto.entity";
 import { ProductoDTO} from "src/dtos/producto.dto"
-import { resolve } from "path/posix";
 
 @EntityRepository(Producto)
-export class ProductoRepository extends Repository<Producto>{
+export class ProductoRepository extends MongoRepository<Producto>{
     private logger = new Logger('ProductoRepository');
 
     createProducto(newProductoData: ProductoDTO): Promise<Producto> {

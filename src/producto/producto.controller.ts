@@ -1,39 +1,54 @@
 import { Body, Controller, Delete, Get, Logger, Param, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { ApiBody, ApiNotFoundResponse, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ProductoDTO } from 'src/dtos/producto.dto';
 import { Producto } from 'src/producto/producto.entity';
 import { ProductoService } from './producto.service';
 
+@ApiTags('request producto')
 @Controller('producto')
 export class ProductoController {
     private logger = new Logger('ProductoController');
 
-    constructor(private productoService: ProductoService){
-    }
+    constructor(private productoService: ProductoService){}
 
     @Get()
-    obtenerTodo() {
-        return this.productoService.obtenerTodo();
+    @ApiOperation({ summary: 'Devuelve todos los productos de la base de datos' })
+    @ApiResponse({ status: 200, type: Object })
+    async obtenerTodo() {
+        return await this.productoService.obtenerTodo();
     };
 
-    @Get('/obtenerProducto/:id')
-    obtenerUnArticulo(@Param() params) {        
-        return this.productoService.obtenerProducto(params.id);
+    @Get('/obtenerProducto/:idProducto')
+    @ApiOperation({ summary: 'Retorna el producto por ID' })
+    @ApiQuery({ name: 'Producto', type: Object })
+    @ApiParam({ name: 'idProducto' })
+    @ApiNotFoundResponse({ description: 'No se encuentra el producto' })
+    obtenerProducto(@Param() params) {        
+        return this.productoService.obtenerProducto(params.idProducto);
     };
     
     @Post('/insertarProducto')
+    @ApiOperation({ summary: 'Inserta un nuevo producto a la base de datos' })
     @UsePipes(ValidationPipe)
-    agregarProducto(@Body() req: ProductoDTO) {
+    @ApiBody({ required: true, type: ProductoDTO })
+    async agregarProducto(@Body() req: ProductoDTO) {
         console.log(req);
-        return this.productoService.agregarProducto(req);
+        return await this.productoService.agregarProducto(req);
     };
 
-    @Post('/editarProducto')
-    editarProducto(@Param() params, @Body() req: ProductoDTO) {
-        return this.productoService.editarProducto(params.id, req);
+    @Post('/editarProducto/:idProducto')
+    @ApiOperation({ summary: 'Edita un producto existente en la base de datos' })
+    @UsePipes(ValidationPipe)
+    @ApiParam({ name: 'idProducto' })
+    @ApiBody({ required: true, type: ProductoDTO })
+    async editarProducto(@Param() params, @Body() req: ProductoDTO) {
+        return await this.productoService.editarProducto(params.idProducto, req);
     };
 
-    @Delete('/eliminarProducto/:id')
-    eliminarProducto(@Param('id') id:string) {
-        return this.productoService.eliminarProducto(id);
+    @Delete('/eliminarProducto/:idProducto')
+    @ApiOperation({ summary: 'Elimina el producto por ID' })
+    @ApiParam({ name: 'idProducto' })
+    async eliminarProducto(@Param('idProducto') idProducto:string) {
+        return await this.productoService.eliminarProducto(idProducto);
     }
 }

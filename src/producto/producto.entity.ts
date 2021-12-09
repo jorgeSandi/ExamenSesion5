@@ -7,19 +7,19 @@ import {BaseEntity, Entity, Column, ObjectIdColumn, Double} from 'typeorm';
 export class Producto extends BaseEntity{
 
     @ObjectIdColumn()
-    IdProducto: String;
+    _id: string;
 
     @Column()
-    NombreProducto: String;
+    NombreProducto: string;
 
     @Column()
-    Descripcion: String;
+    Descripcion: string;
 
     @Column()
     Precio: number;
 
     @Column()
-    LugarCompra: any[];
+    LugarCompra: string[];
 
     @Column()
     FechaCreacion: Date;

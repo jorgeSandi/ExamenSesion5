@@ -1,35 +1,57 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ProductoDTO } from 'src/dtos/producto.dto';
 import { Producto } from 'src/producto/producto.entity';
 import { ProductoRepository } from 'src/producto/producto.repository';
+import { ObjectID } from 'typeorm';
 
 @Injectable()
 export class ProductoService {
     private logger = new Logger('ProductoService');
 
     constructor(
-        //private productoRepository: ProductoRepository
+        @InjectRepository(ProductoRepository)
+        private productoRepository: ProductoRepository
     ){}
 
-    obtenerTodo(): string {
-        return 'Obtener Todo. OK';
+    async obtenerTodo() {
+        console.log('ask get');
+        let response = await this.productoRepository.find({});
+        return response;
     }
 
-    obtenerProducto(idProducto:number): string {
-        console.log(idProducto);
-        return `Obtener producto: ${idProducto}`;
+    async obtenerProducto(idProducto:string) {
+        console.log(`Obtener producto: ${idProducto}`);
+        let response = await this.productoRepository.findByIds([idProducto]);
+        console.log(response);
+        return response;
     }
 
-    agregarProducto(data: Object): string {
+    async agregarProducto(data: ProductoDTO) {
+        const news = await this.productoRepository.createProducto(data);
+        console.log(news);
         return 'Producto insertado';
     }
 
-    editarProducto(idProducto: number, data: Object): string {
+    async editarProducto(idProducto: string, data: ProductoDTO) {
         console.log(idProducto);
         console.log(data);
-        return 'Producto editado';
+        let producto: Producto[] = await this.productoRepository.findByIds([idProducto]);
+
+        producto[0].NombreProducto = data.NombreProducto;
+        producto[0].Descripcion = data.Descripcion;
+        producto[0].Precio = data.Precio;
+        producto[0].LugarCompra = data.LugarCompra;
+        producto[0].FechaCreacion = data.FechaCreacion;
+
+        await this.productoRepository.save(producto);
+
+        return `Producto editado: ${idProducto}`;
     }
 
-    eliminarProducto(idProducto:string): string {
+    async eliminarProducto(idProducto:string) {
+        let producto: Producto[] = await this.productoRepository.findByIds([idProducto]);
+        await this.productoRepository.remove(producto);
         return `Producto eliminado: ${idProducto}`
     }
 }
